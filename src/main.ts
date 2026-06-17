@@ -47,7 +47,9 @@ function startGame() {
   const game = new Phaser.Game({
     type: Phaser.AUTO,
     parent: container,
-    backgroundColor: "#0e1430",
+    backgroundColor: "#e7d6ad",
+    antialias: true,
+    roundPixels: false,
     scale: {
       mode: Phaser.Scale.RESIZE,
       width: container.clientWidth,
@@ -62,7 +64,10 @@ function startGame() {
   ui.init();
 
   engine.start();
-  engine.notify("info", `Willkommen bei ${name}! Entwickle dein erstes Spiel.`);
+  // start running immediately so the office feels alive
+  engine.setSpeed(1);
+  ui.setSpeed(1);
+  engine.notify("info", `Willkommen bei ${name}! Tippe auf „Neues Spiel", um loszulegen.`);
 }
 
 showStartScreen();

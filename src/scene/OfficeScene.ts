@@ -16,6 +16,7 @@ interface Workstation {
   c: number;
   r: number;
   deskGfx: Phaser.GameObjects.Graphics;
+  screen?: Phaser.GameObjects.Rectangle;
   charContainer?: Phaser.GameObjects.Container;
   bob?: Phaser.Tweens.Tween;
   occupied: boolean;
@@ -37,6 +38,7 @@ export class OfficeScene extends Phaser.Scene {
   private engine!: GameEngine;
   private stations: Workstation[] = [];
   private decor: Phaser.GameObjects.GameObject[] = [];
+  private bgGfx?: Phaser.GameObjects.Graphics;
 
   // candidate seat tiles (filled as capacity grows)
   private seatTiles = [
@@ -54,7 +56,9 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   create() {
-    this.cameras.main.setBackgroundColor("#efe2c4");
+    this.cameras.main.setBackgroundColor("#e7d6ad");
+    this.drawBackground();
+    this.buildShadow();
     this.buildRoom();
     this.placeDecor();
     this.syncStations();
@@ -70,11 +74,33 @@ export class OfficeScene extends Phaser.Scene {
   // ---- camera fit ---------------------------------------------------------
   private fitCamera() {
     const cam = this.cameras.main;
-    const roomW = GRID * TILE_W + 160;
-    const roomH = GRID * TILE_H * 2 + WALL_H + 200;
+    const roomW = GRID * TILE_W + 130;
+    const roomH = GRID * TILE_H * 2 + WALL_H + 170;
     const zoom = Math.min(this.scale.width / roomW, this.scale.height / roomH);
-    cam.setZoom(Phaser.Math.Clamp(zoom, 0.5, 2.2));
+    cam.setZoom(Phaser.Math.Clamp(zoom, 0.55, 1.9));
     cam.centerOn(0, isoY(GRID / 2, GRID / 2) - WALL_H * 0.4);
+    this.drawBackground();
+  }
+
+  // soft warm gradient backdrop, fixed to the camera
+  private drawBackground() {
+    if (!this.bgGfx) {
+      this.bgGfx = this.add.graphics().setScrollFactor(0).setDepth(-200000);
+    }
+    const w = this.scale.width;
+    const h = this.scale.height;
+    this.bgGfx.clear();
+    this.bgGfx.fillGradientStyle(0xf6eed8, 0xf6eed8, 0xe2cfa3, 0xd8c294, 1);
+    this.bgGfx.fillRect(0, 0, w, h);
+  }
+
+  // drop shadow under the building for depth
+  private buildShadow() {
+    const cx = 0;
+    const cy = isoY(GRID / 2, GRID / 2) + 6;
+    const g = this.add.graphics().setDepth(-110000);
+    g.fillStyle(0x000000, 0.12);
+    g.fillEllipse(cx, cy + GRID * TILE_H * 0.5, GRID * TILE_W + 90, GRID * TILE_H + 70);
   }
 
   // ---- room (floor + walls) ----------------------------------------------
@@ -288,6 +314,7 @@ export class OfficeScene extends Phaser.Scene {
     if (this.stations.length !== need) {
       this.stations.forEach((st) => {
         st.deskGfx.destroy();
+        st.screen?.destroy();
         st.charContainer?.destroy();
         st.bob?.stop();
       });
@@ -313,9 +340,13 @@ export class OfficeScene extends Phaser.Scene {
     g.setDepth(cy + 2); // desk in front of seated person
     // desk body
     this.isoBox(g, cx, cy, 0.78, 12, 0xc88f57, 0xa06f3e, 0x7d5429);
-    // monitor base + screen
-    this.isoBox(g, cx, cy - 12, 0.22, 9, 0x2a2f3a, 0x20242d, 0x161a21);
-    return { c, r, deskGfx: g, occupied: false };
+    // monitor stand + casing
+    this.isoBox(g, cx, cy - 12, 0.2, 11, 0x2a2f3a, 0x20242d, 0x161a21);
+    // glowing screen
+    const screen = this.add.rectangle(cx, cy - 23, 13, 9, 0x8fd8ef)
+      .setDepth(cy + 2.5)
+      .setStrokeStyle(1.5, 0x1c2230);
+    return { c, r, deskGfx: g, screen, occupied: false };
   }
 
   private setStationEmployee(st: Workstation, emp: Employee | undefined, working: boolean) {
@@ -323,7 +354,8 @@ export class OfficeScene extends Phaser.Scene {
 
     if (!emp) {
       st.occupied = false;
-      st.deskGfx.setAlpha(0.4);
+      st.deskGfx.setAlpha(0.35);
+      st.screen?.setFillStyle(0x6f7c86).setAlpha(0.35);
       st.charContainer?.destroy();
       st.charContainer = undefined;
       st.bob?.stop();
@@ -332,6 +364,7 @@ export class OfficeScene extends Phaser.Scene {
     }
 
     st.deskGfx.setAlpha(1);
+    st.screen?.setAlpha(1);
     if (!st.charContainer) {
       st.charContainer = this.makeCharacter(emp);
       st.charContainer.setPosition(cx, cy - 4);
@@ -339,23 +372,26 @@ export class OfficeScene extends Phaser.Scene {
     }
     st.occupied = true;
 
-    // typing bob while a project is active
-    if (working && !st.bob && st.charContainer) {
-      const head = st.charContainer.getByName("head") as Phaser.GameObjects.Arc;
+    const head = st.charContainer.getByName("head") as Phaser.GameObjects.Container;
+    const bubble = st.charContainer.getByName("bubble") as Phaser.GameObjects.Container;
+
+    // typing bob + lit screen while a project is active
+    if (working && !st.bob) {
+      st.screen?.setFillStyle(0x6dffb0);
       st.bob = this.tweens.add({
         targets: head,
-        y: head.y - 2,
-        duration: 260 + (hashId(emp.id) % 120),
+        y: head.y - 2.4,
+        duration: 230 + (hashId(emp.id) % 130),
         yoyo: true,
         repeat: -1,
         ease: "Sine.inOut",
       });
-      const bubble = st.charContainer.getByName("bubble") as Phaser.GameObjects.Container;
       bubble?.setVisible(true);
     } else if (!working && st.bob) {
       st.bob.stop();
       st.bob = undefined;
-      const bubble = st.charContainer?.getByName("bubble") as Phaser.GameObjects.Container;
+      head.y = -40;
+      st.screen?.setFillStyle(0x8fd8ef);
       bubble?.setVisible(false);
     }
   }
@@ -366,43 +402,73 @@ export class OfficeScene extends Phaser.Scene {
     const skin = SKIN[(h >> 3) % SKIN.length];
     const hair = HAIR[(h >> 6) % HAIR.length];
 
+    const shirtDark = Phaser.Display.Color.IntegerToColor(shirt).darken(16).color;
+    const skinShade = Phaser.Display.Color.IntegerToColor(skin).darken(12).color;
+
     const container = this.add.container(0, 0);
 
-    // shadow
-    const shadow = this.add.ellipse(0, 6, 26, 12, 0x000000, 0.18);
+    // ground shadow
+    const shadow = this.add.ellipse(0, 7, 28, 12, 0x000000, 0.16);
 
-    // chair back
+    // chair (back + seat)
     const chair = this.add.graphics();
-    chair.fillStyle(0x333a45, 1);
-    chair.fillRoundedRect(-9, -34, 18, 22, 5);
+    chair.fillStyle(0x2c333d, 1);
+    chair.fillRoundedRect(-11, -36, 22, 26, 7);
+    chair.fillStyle(0x3b434f, 1);
+    chair.fillRoundedRect(-12, -16, 24, 9, 4);
 
-    // body
+    // torso (rounded, with shaded base)
     const body = this.add.graphics();
+    body.fillStyle(shirtDark, 1);
+    body.fillRoundedRect(-12, -16, 24, 10, 5);
     body.fillStyle(shirt, 1);
-    body.fillRoundedRect(-11, -30, 22, 24, 8);
-    body.fillStyle(Phaser.Display.Color.IntegerToColor(shirt).darken(12).color, 1);
-    body.fillRoundedRect(-11, -14, 22, 8, 4);
+    body.fillRoundedRect(-12, -32, 24, 24, 9);
+    // arms hint
+    body.fillStyle(shirtDark, 1);
+    body.fillRoundedRect(-13, -22, 6, 14, 3);
+    body.fillRoundedRect(7, -22, 6, 14, 3);
 
-    // head
-    const head = this.add.circle(0, -40, 8, skin);
+    // neck
+    const neck = this.add.rectangle(0, -34, 8, 6, skinShade);
+
+    // head + hair (drawn inside its own container so the bob tween moves both)
+    const head = this.add.container(0, -40);
     head.setName("head");
+    const face = this.add.circle(0, 0, 9, skin);
+    const cheek = this.add.circle(0, 3, 8, skinShade).setAlpha(0.0);
     const hairG = this.add.graphics();
     hairG.fillStyle(hair, 1);
-    hairG.slice(0, -42, 9, Phaser.Math.DegToRad(180), Phaser.Math.DegToRad(360), true);
+    hairG.slice(0, 0, 10, Phaser.Math.DegToRad(178), Phaser.Math.DegToRad(362), true);
     hairG.fillPath();
+    hairG.fillRoundedRect(-10, -3, 20, 5, 2);
+    const eyeL = this.add.circle(-3.2, 1, 1.4, 0x2a2320);
+    const eyeR = this.add.circle(3.2, 1, 1.4, 0x2a2320);
+    head.add([cheek, face, hairG, eyeL, eyeR]);
 
     // work bubble (hidden by default)
-    const bubble = this.add.container(0, -58);
+    const bubble = this.add.container(0, -60);
     const bb = this.add.graphics();
-    bb.fillStyle(0xffffff, 0.95);
-    bb.fillRoundedRect(-13, -12, 26, 22, 7);
-    bb.fillTriangle(-4, 9, 4, 9, 0, 15);
-    const icon = this.add.text(0, -1, "💡", { fontSize: "14px" }).setOrigin(0.5);
+    bb.fillStyle(0xffffff, 0.96);
+    bb.fillRoundedRect(-14, -13, 28, 24, 8);
+    bb.fillTriangle(-4, 10, 5, 10, 0, 16);
+    const icon = this.add.text(0, -1, "💡", { fontSize: "15px" }).setOrigin(0.5);
     bubble.add([bb, icon]);
     bubble.setName("bubble");
     bubble.setVisible(false);
 
-    container.add([shadow, chair, body, head, hairG, bubble]);
+    container.add([shadow, chair, body, neck, head, bubble]);
+
+    // gentle always-on "breathing" so the office never looks frozen
+    container.setScale(1, 1);
+    this.tweens.add({
+      targets: container,
+      scaleY: 1.025,
+      duration: 1400 + (h % 400),
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.inOut",
+    });
+
     return container;
   }
 

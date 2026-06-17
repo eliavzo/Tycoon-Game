@@ -59,52 +59,81 @@ export class UIManager {
     this.renderEmpRail();
   }
 
+  private pcEls?: {
+    title: HTMLElement; tags: HTMLElement; bar: HTMLElement; week: HTMLElement;
+  };
+  private empSig = "";
+
   private renderProjectCard() {
     const s = this.engine.state;
     const card = $("#project-card");
     const p = s.currentProject;
+    const newBtn = document.querySelector('.action-btn[data-action="new-game"]');
+
     if (!p) {
       card.classList.add("hidden");
+      this.pcEls = undefined;
+      card.innerHTML = "";
+      // nudge the player toward starting a project
+      newBtn?.classList.toggle("pulse", !!s.employees.length);
       return;
     }
+    newBtn?.classList.remove("pulse");
+
+    if (!this.pcEls) {
+      card.classList.remove("hidden");
+      card.innerHTML = "";
+      const title = el("div", { class: "pc-title" });
+      const tags = el("div", { class: "pc-tags" });
+      const bar = el("i");
+      const week = el("div", { class: "pc-week" });
+      card.append(
+        el("div", { class: "pc-label" }, ["In Entwicklung"]),
+        title, tags,
+        el("div", { class: "pc-progress" }, [bar]),
+        week,
+      );
+      this.pcEls = { title, tags, bar, week };
+    }
+
     const frac = Math.min(1, p.weeksDone / p.totalWeeks);
-    card.classList.remove("hidden");
-    card.innerHTML = "";
-    card.append(
-      el("div", { class: "pc-label" }, ["In Entwicklung"]),
-      el("div", { class: "pc-title" }, [p.name]),
-      el("div", { class: "pc-tags" }, [
-        `${getGenre(p.genreId).name} · ${getTopic(p.topicId).name}`,
-      ]),
-      el("div", { class: "pc-progress" }, [
-        el("i", { style: `width:${Math.round(frac * 100)}%` }),
-      ]),
-      el("div", { class: "pc-week" }, [`Woche ${p.weeksDone}/${p.totalWeeks}`]),
-    );
+    this.pcEls.title.textContent = p.name;
+    this.pcEls.tags.textContent = `${getGenre(p.genreId).name} · ${getTopic(p.topicId).name}`;
+    this.pcEls.bar.style.width = `${Math.round(frac * 100)}%`;
+    this.pcEls.week.textContent = `Woche ${p.weeksDone}/${p.totalWeeks}`;
   }
 
   private renderEmpRail() {
     const s = this.engine.state;
+    const shown = s.employees.slice(0, 6);
+    const sig = shown.map((e) => `${e.id}:${e.design}:${e.tech}`).join("|") +
+      `/${s.employees.length}`;
+    if (sig === this.empSig) return; // only rebuild when the team changes
+    this.empSig = sig;
+
     const rail = $("#emp-rail");
     rail.innerHTML = "";
-    const shown = s.employees.slice(0, 6);
     for (const e of shown) {
       const lvl = Math.max(1, Math.round((e.design + e.tech) / 2));
-      const avatar = el("div", {
+      rail.append(el("div", {
         class: "emp-avatar",
         style: `background:${avatarColor(e.id)}`,
         title: `${e.name} · 🎨${e.design} ⚙️${e.tech}`,
       }, [
         initials(e.name),
         el("span", { class: "lvl" }, [String(lvl)]),
-      ]);
-      rail.append(avatar);
+      ]));
     }
     if (s.employees.length > shown.length) {
       rail.append(el("div", { class: "emp-avatar", style: "background:#9b8a6a" }, [
         `+${s.employees.length - shown.length}`,
       ]));
     }
+  }
+
+  /** Public so bootstrapping code can sync the speed indicator. */
+  setSpeed(speed: 0 | 1 | 2 | 3) {
+    this.setActiveSpeed(speed);
   }
 
   private dateLabel(): string {
