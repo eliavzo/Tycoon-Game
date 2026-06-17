@@ -1,50 +1,49 @@
-# Tech Empire Tycoon
+# STACK — Tech Tycoon
 
-Ein Wirtschafts-Simulationsspiel im Stil von *Game Dev Tycoon*, *Smartphone/PC Tycoon 2*
-und *Car Company Tycoon*. Du gründest ein kleines Spielestudio und baust es Schritt für
-Schritt zu einem globalen Technologie-Imperium aus – vom ersten Indie-Hit über Smartphones
-und PCs bis zum eigenen Autowerk.
+Ein Tech-Startup-Tycoon, bei dem deine Firma **der Software-Stack ist**. Skaliere die
+Schichten deines Stacks, bevor sie unter der Last zusammenbrechen, rekrutiere Talente per
+Swipe-Karten und shippe Features, die User bringen — ohne deine Runway zu verbrennen.
 
-Gebaut mit **TypeScript**, **Vite** und **Phaser 3** (animiertes Büro) plus moderner HTML/CSS-UI.
+Keynote-dunkles Design mit einem Ember-Orange-Akzent und Coolant-Cyan-Status, Monospace-Typo.
+Gebaut mit **React**, **TypeScript** und **Vite**.
 
-## Aktueller Stand (spielbarer Kern)
+## Drei Screens
 
-- 🏢 **Firma gründen** und benennen
-- 🎮 **Spiele entwickeln**: Genre, Thema, Plattform und Umfang wählen – mit Synergie-System
-  (manche Genre/Thema-Kombinationen funktionieren besser)
-- 👥 **Personal**: Bewerber:innen einstellen, Büro erweitern; Talent (Design/Technik) und
-  Energie der Mitarbeiter:innen bestimmen Geschwindigkeit und Qualität
-- ⭐ **Reviews & Verkäufe**: Qualität → Wertung (1–10) → Verkaufszahlen mit abklingendem Momentum
-- 🔬 **Forschung**: Engines, Online-Multiplayer, Marketing und das Freischalten neuer Sparten
-- 📈 **Wirtschaft**: Gehälter, Lizenzkosten, Fans, Firmenwert
-- ⏱️ **Zeitsteuerung**: Pause / Normal / Schnell / Sehr schnell
-- 🏢 **Sparten**: Spiele (aktiv) plus Smartphones, PCs und Autos (per Forschung freischaltbar;
-  Produktion folgt in kommenden Updates)
+- **⌷ Stack** — der lebende Schichtturm (Growth, Product, API Gateway, Services, Data, Infra).
+  Jede Schicht zeigt ihre Live-Last; überlastete Schichten glühen rot und riskieren Ausfälle.
+  Per „SCALE ↑" erhöhst du die Kapazität.
+- **◇ Talent** — Recruiting als Swipe-Karten: nach links ablehnen, nach rechts einstellen.
+  Jede Person hat Stats (Build/Speed/Cost) und ein Trait (Scaler, Viral, Firewall, Architect, Closer).
+- **▲ Ship** — Release-Konsole: verteile Ressourcen auf Speed / Polish / Scale, sieh Ausfall-Risiko
+  und Hype, dann „DEPLOY TO PRODUCTION".
+
+## Mechaniken
+
+- **Last & Kapazität:** User-Wachstum erhöht die Last jeder Schicht; Skalieren und zugewiesene
+  Mitarbeiter:innen erhöhen die Kapazität.
+- **Ausfälle:** überlastete Schichten können abstürzen → Uptime und User sinken (ein *Firewall*-Hire
+  blockt den nächsten Ausfall).
+- **Finanzen:** Umsatz pro User vs. Burn (Gehälter + Infra). Geht die Runway auf 0 → Game Over.
+- **Zeit:** läuft in Monaten/Quartalen/Jahren; jedes Quartal kommen neue Talente.
 
 ## Entwicklung
 
 ```bash
 npm install
-npm run dev      # Dev-Server (http://localhost:5173)
+npm run dev      # http://localhost:5173
 npm run build    # Typecheck + Production-Build nach dist/
-npm run preview  # Production-Build lokal testen
 ```
 
 ## Architektur
 
 ```
 src/
-  core/        Spielzustand, Typen, Simulations-Engine, Hilfsfunktionen
-  data/        Spieldaten (Genres, Themen, Plattformen, Forschung, Namen)
-  systems/     Spiellogik (Entwicklung, Ökonomie)
-  scene/       Phaser-Szene (animiertes Büro)
-  ui/          DOM-basierte Oberfläche (Topbar, Dialoge, Benachrichtigungen)
-  main.ts      Einstiegspunkt / Bootstrapping
+  theme.ts           Design-Tokens (Farben, Fonts)
+  game/              Spiellogik: types, data, engine (Simulation)
+  components/        Wiederverwendbare UI (Header, Pulse, Nav, Log)
+  screens/           Stack / Talent / Ship
+  App.tsx            Shell, Spielzustand, Tick-Loop, Start- & Game-Over-Screen
+  main.tsx           Einstiegspunkt
 ```
 
-## Roadmap
-
-- Smartphone-, PC- und Auto-Produktion mit Komponenten-/Forschungsbäumen
-- Konkurrenz-Firmen und Marktanteile
-- Speichern/Laden, Mitarbeiter-Weiterbildung, Marketing-Kampagnen
-- Detailliertere Grafik und Büro-Ausbau
+Live (GitHub Pages): https://eliavzo.github.io/Tycoon-Game/

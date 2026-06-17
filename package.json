@@ -1,18 +1,22 @@
 {
   "name": "tycoon-game",
-  "version": "0.1.0",
-  "description": "Tech Empire Tycoon - baue dein Technologie-Imperium vom Spielestudio zum Weltkonzern",
+  "version": "0.2.0",
+  "description": "STACK - ein Tech-Startup-Tycoon, bei dem deine Firma der Software-Stack ist",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview"
   },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
   "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
-  },
-  "dependencies": {
-    "phaser": "^3.80.1"
   }
 }

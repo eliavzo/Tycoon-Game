@@ -3,90 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Tech Empire Tycoon</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <title>STACK — Tech Tycoon</title>
   </head>
   <body>
-    <div id="app">
-      <!-- Isometric office (Phaser) -->
-      <div id="phaser-container"></div>
-
-      <!-- Floating HUD -->
-      <div id="hud">
-        <!-- top-left: company + resources -->
-        <div id="hud-top-left">
-          <div id="company-chip">
-            <span class="logo">▲</span>
-            <span id="company-name">Tech Empire</span>
-          </div>
-          <div class="res-bars">
-            <div class="res" title="Kontostand">
-              <span class="res-icon money">€</span>
-              <span id="stat-money" class="res-val">0</span>
-            </div>
-            <div class="res" title="Fans">
-              <span class="res-icon fans">♥</span>
-              <span id="stat-fans" class="res-val">0</span>
-            </div>
-            <div class="res" title="Forschungspunkte">
-              <span class="res-icon research">⚛</span>
-              <span id="stat-research" class="res-val">0</span>
-            </div>
-            <div class="res" title="Firmenwert">
-              <span class="res-icon value">▲</span>
-              <span id="stat-value" class="res-val">0</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- top-right: date + speed -->
-        <div id="hud-top-right">
-          <div id="date-chip"><span id="stat-date">—</span></div>
-          <div class="speed-group">
-            <button class="speed-btn" data-speed="0" title="Pause">❚❚</button>
-            <button class="speed-btn" data-speed="1" title="Normal">▶</button>
-            <button class="speed-btn" data-speed="2" title="Schnell">▶▶</button>
-            <button class="speed-btn" data-speed="3" title="Sehr schnell">▶▶▶</button>
-          </div>
-        </div>
-
-        <!-- left rail: current project + team avatars -->
-        <div id="hud-left">
-          <div id="project-card" class="hidden"></div>
-          <div id="emp-rail"></div>
-        </div>
-
-        <!-- notifications -->
-        <div id="ticker"></div>
-
-        <!-- bottom action bar -->
-        <nav id="actionbar">
-          <button class="action-btn primary" data-action="new-game">
-            <span class="ab-icon">🎮</span><span class="ab-label">Neues Spiel</span>
-          </button>
-          <button class="action-btn" data-action="staff">
-            <span class="ab-icon">👥</span><span class="ab-label">Personal</span>
-          </button>
-          <button class="action-btn" data-action="research">
-            <span class="ab-icon">🔬</span><span class="ab-label">Forschung</span>
-          </button>
-          <button class="action-btn" data-action="products">
-            <span class="ab-icon">📦</span><span class="ab-label">Produkte</span>
-          </button>
-          <button class="action-btn" data-action="divisions">
-            <span class="ab-icon">🏢</span><span class="ab-label">Sparten</span>
-          </button>
-        </nav>
-      </div>
-    </div>
-
-    <div id="modal-root" class="hidden"></div>
-
-    <script type="module" src="/src/main.ts"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
