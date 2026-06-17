@@ -30,6 +30,7 @@ body {
   display: grid;
   grid-template-rows: 60px 1fr 64px;
   height: 100vh;
+  height: 100dvh;
 }
 
 /* ---- Topbar ---- */
@@ -198,3 +199,49 @@ h3 { font-size: 14px; margin: 12px 0 6px; color: var(--muted); text-transform: u
 .start-card h1 { font-size: 26px; margin-bottom: 12px; }
 .start-card p { margin-bottom: 18px; line-height: 1.5; font-size: 14px; }
 .start-card .field { text-align: center; font-size: 16px; }
+
+/* ---- Responsive / mobile ---- */
+@media (max-width: 760px) {
+  #app { grid-template-rows: auto 1fr auto; }
+
+  #topbar {
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    padding: 8px 12px;
+    min-height: 56px;
+  }
+  .brand { font-size: 16px; order: 1; }
+  .time-controls { order: 2; margin-left: auto; }
+  .stats {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    gap: 0;
+    justify-content: space-between;
+  }
+  .stat { font-size: 13px; gap: 4px; }
+  .date { margin-right: 4px; padding: 5px 8px; font-size: 13px; }
+
+  #ticker { width: min(320px, calc(100vw - 24px)); top: 10px; right: 10px; }
+
+  #actionbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 10px;
+    justify-content: center;
+  }
+  .action-btn { padding: 9px 12px; font-size: 13px; }
+}
+
+/* Larger touch targets on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .speed-btn { width: 40px; height: 38px; }
+  .btn.small { padding: 9px 14px; }
+  .action-btn { padding: 12px 16px; }
+}
+
+@media (max-width: 420px) {
+  .action-btn { flex: 1 1 calc(33% - 8px); justify-content: center; }
+  .brand .logo { width: 28px; height: 28px; }
+  .stat-icon { font-size: 13px; }
+}
