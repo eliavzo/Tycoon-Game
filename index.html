@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tech Empire Tycoon</title>
+  </head>
+  <body>
+    <div id="app">
+      <!-- Topbar -->
+      <header id="topbar">
+        <div class="brand">
+          <span class="logo">▲</span>
+          <span id="company-name">Tech Empire</span>
+        </div>
+        <div class="stats">
+          <div class="stat" title="Kontostand">
+            <span class="stat-icon">💰</span>
+            <span id="stat-money">0 €</span>
+          </div>
+          <div class="stat" title="Fans">
+            <span class="stat-icon">❤️</span>
+            <span id="stat-fans">0</span>
+          </div>
+          <div class="stat" title="Forschungspunkte">
+            <span class="stat-icon">🔬</span>
+            <span id="stat-research">0</span>
+          </div>
+          <div class="stat" title="Firmenwert">
+            <span class="stat-icon">📈</span>
+            <span id="stat-value">0 €</span>
+          </div>
+        </div>
+        <div class="time-controls">
+          <span id="stat-date" class="date">—</span>
+          <button class="speed-btn" data-speed="0" title="Pause">⏸</button>
+          <button class="speed-btn" data-speed="1" title="Normal">▶</button>
+          <button class="speed-btn" data-speed="2" title="Schnell">▶▶</button>
+          <button class="speed-btn" data-speed="3" title="Sehr schnell">▶▶▶</button>
+        </div>
+      </header>
+
+      <!-- Game canvas (Phaser office) -->
+      <main id="game-root">
+        <div id="phaser-container"></div>
+        <div id="ticker"></div>
+      </main>
+
+      <!-- Action bar -->
+      <nav id="actionbar">
+        <button class="action-btn" data-action="new-game">🎮 Neues Spiel</button>
+        <button class="action-btn" data-action="staff">👥 Personal</button>
+        <button class="action-btn" data-action="research">🔬 Forschung</button>
+        <button class="action-btn" data-action="products">📦 Produkte</button>
+        <button class="action-btn" data-action="divisions">🏢 Sparten</button>
+      </nav>
+    </div>
+
+    <!-- Modal overlay root -->
+    <div id="modal-root" class="hidden"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
