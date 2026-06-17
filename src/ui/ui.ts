@@ -48,12 +48,63 @@ export class UIManager {
   private refreshTopbar() {
     const s = this.engine.state;
     $("#company-name").textContent = s.companyName;
-    $("#stat-money").textContent = formatMoney(s.money);
-    $("#stat-money").style.color = s.money < 0 ? "#ff8080" : "";
+    const moneyEl = $("#stat-money");
+    moneyEl.textContent = moneyShort(s.money);
+    moneyEl.style.color = s.money < 0 ? "var(--orange-d)" : "";
     $("#stat-fans").textContent = formatNumber(s.fans);
     $("#stat-research").textContent = formatNumber(s.research);
-    $("#stat-value").textContent = formatMoney(companyValue(s));
+    $("#stat-value").textContent = moneyShort(companyValue(s));
     $("#stat-date").textContent = this.dateLabel();
+    this.renderProjectCard();
+    this.renderEmpRail();
+  }
+
+  private renderProjectCard() {
+    const s = this.engine.state;
+    const card = $("#project-card");
+    const p = s.currentProject;
+    if (!p) {
+      card.classList.add("hidden");
+      return;
+    }
+    const frac = Math.min(1, p.weeksDone / p.totalWeeks);
+    card.classList.remove("hidden");
+    card.innerHTML = "";
+    card.append(
+      el("div", { class: "pc-label" }, ["In Entwicklung"]),
+      el("div", { class: "pc-title" }, [p.name]),
+      el("div", { class: "pc-tags" }, [
+        `${getGenre(p.genreId).name} · ${getTopic(p.topicId).name}`,
+      ]),
+      el("div", { class: "pc-progress" }, [
+        el("i", { style: `width:${Math.round(frac * 100)}%` }),
+      ]),
+      el("div", { class: "pc-week" }, [`Woche ${p.weeksDone}/${p.totalWeeks}`]),
+    );
+  }
+
+  private renderEmpRail() {
+    const s = this.engine.state;
+    const rail = $("#emp-rail");
+    rail.innerHTML = "";
+    const shown = s.employees.slice(0, 6);
+    for (const e of shown) {
+      const lvl = Math.max(1, Math.round((e.design + e.tech) / 2));
+      const avatar = el("div", {
+        class: "emp-avatar",
+        style: `background:${avatarColor(e.id)}`,
+        title: `${e.name} · 🎨${e.design} ⚙️${e.tech}`,
+      }, [
+        initials(e.name),
+        el("span", { class: "lvl" }, [String(lvl)]),
+      ]);
+      rail.append(avatar);
+    }
+    if (s.employees.length > shown.length) {
+      rail.append(el("div", { class: "emp-avatar", style: "background:#9b8a6a" }, [
+        `+${s.employees.length - shown.length}`,
+      ]));
+    }
   }
 
   private dateLabel(): string {
@@ -413,4 +464,29 @@ function randomTitle(): string {
   const a = ["Epic", "Mega", "Super", "Galaxy", "Shadow", "Neon", "Turbo", "Crystal", "Cyber", "Dragon"];
   const b = ["Quest", "Wars", "Legends", "Rush", "Empire", "Saga", "Arena", "World", "Tycoon", "Force"];
   return `${a[Math.floor(Math.random() * a.length)]} ${b[Math.floor(Math.random() * b.length)]}`;
+}
+
+const AVATAR_COLORS = [
+  "#4f86c6", "#e8643c", "#46a06f", "#9b6dd6", "#e0a13a", "#d64f7d", "#37b0c4",
+];
+function hashId(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return h;
+}
+function avatarColor(id: string): string {
+  return AVATAR_COLORS[hashId(id) % AVATAR_COLORS.length];
+}
+function initials(name: string): string {
+  const parts = name.replace(/[()]/g, "").trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.slice(0, 2).toUpperCase();
+}
+
+function moneyShort(n: number): string {
+  const abs = Math.abs(n);
+  if (abs >= 1_000_000_000) return (n / 1_000_000_000).toFixed(2) + " Mrd";
+  if (abs >= 1_000_000) return (n / 1_000_000).toFixed(2) + " Mio";
+  if (abs >= 10_000) return Math.round(n / 1000) + "K";
+  return Math.round(n).toLocaleString("de-DE");
 }
